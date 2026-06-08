@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دانلودر ویدیو | یوتیوب، اینستاگرام، توییتر</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #ef4444;
+            --secondary-color: #f97316;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Vazirmatn', sans-serif; }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        header { text-align: center; margin-bottom: 2rem; animation: fadeInDown 0.8s ease; }
+        header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        header p { color: var(--text-secondary); font-size: 1.1rem; }
+
+        .main-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .input-section { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+
+        .url-input-wrapper { position: relative; display: flex; gap: 0.5rem; }
+
+        .url-input {
+            flex: 1; padding: 1rem 1.25rem; background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border); border-radius: 12px;
+            color: var(--text-primary); font-size: 1rem; direction: ltr; text-align: left;
+            transition: all 0.3s;
+        }
+        .url-input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2); }
+
+        .paste-btn {
+            padding: 0 1.25rem; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border);
+            border-radius: 12px; color: var(--text-primary); cursor: pointer; transition: all 0.3s; font-size: 1.1rem;
+        }
+        .paste-btn:hover { background: rgba(255,255,255,0.2); }
+
+        .options-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .select-wrapper { position: relative; }
+        .select-wrapper label { display: block; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.9rem; }
+
+        .custom-select {
+            width: 100%; padding: 0.75rem 1rem; background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border); border-radius: 12px; color: var(--text-primary);
+            font-size: 1rem; cursor: pointer; appearance: none; padding-left: 2.5rem;
+        }
+        .select-wrapper::after {
+            content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            position: absolute; left: 1rem; bottom: 0.9rem; color: var(--text-secondary); pointer-events: none;
+        }
+
+        .download-btn {
+            width: 100%; padding: 1rem; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none; border-radius: 12px; color: white; font-size: 1.1rem; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+            transition: all 0.3s; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+        .download-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.6); }
+        .download-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .status-message {
+            margin-top: 1rem; padding: 1rem; border-radius: 12px; text-align: center;
+            display: none; animation: fadeInUp 0.3s ease;
+        }
+        .status-message.show { display: block; }
+        .status-message.loading { background: rgba(99, 102, 241, 0.1); border: 1px solid #6366f1; color: #818cf8; }
+        .status-message.success { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); color: var(--success); }
+        .status-message.error { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--error); color: var(--error); }
+
+        .preview-card {
+            margin-top: 1.5rem; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border);
+            border-radius: 16px; overflow: hidden; display: none; animation: fadeInUp 0.5s ease;
+        }
+        .preview-card.show { display: block; }
+        .preview-thumbnail { width: 100%; height: 200px; object-fit: cover; background: #000; }
+        .preview-info { padding: 1.25rem; }
+        .preview-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); }
+        
+        .download-link {
+            display: block; margin-top: 1rem; padding: 0.75rem;
+            background: linear-gradient(135deg, var(--success), #059669); color: white;
+            text-align: center; text-decoration: none; border-radius: 10px; font-weight: 600; transition: all 0.3s;
+        }
+        .download-link:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+
+        .spinner {
+            width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;
+        }
+
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.8rem; }
+            .options-row { grid-template-columns: 1fr; }
+            .url-input-wrapper { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1><i class="fa-solid fa-download"></i> دانلودر ویدیو</h1>
+        <p>دانلود سریع و رایگان از یوتیوب، اینستاگرام و...</p>
+    </header>
+
+    <div class="main-card">
+        <div class="input-section">
+            <div class="url-input-wrapper">
+                <input type="text" class="url-input" id="urlInput" placeholder="لینک ویدیو را اینجا بچسبانید..." autocomplete="off">
+                <button class="paste-btn" onclick="pasteFromClipboard()" title="چسباندن"><i class="fa-solid fa-paste"></i></button>
+            </div>
+
+            <div class="options-row">
+                <div class="select-wrapper">
+                    <label>کیفیت / فرمت</label>
+                    <select class="custom-select" id="qualitySelect">
+                        <option value="720">ویدیو (720p HD)</option>
+                        <option value="1080">ویدیو (1080p Full HD)</option>
+                        <option value="audio">فقط صدا (MP3)</option>
+                    </select>
+                </div>
+                <div class="select-wrapper">
+                    <label>پلتفرم</label>
+                    <select class="custom-select" id="platformSelect">
+                        <option value="auto">تشخیص خودکار</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="twitter">Twitter / X</option>
+                        <option value="tiktok">TikTok</option>
+                    </select>
+                </div
+            </div>
+
+            <button class="download-btn" id="downloadBtn" onclick="processDownload()">
+                <i class="fa-solid fa-download"></i>
+                <span>دریافت لینک دانلود</span>
+            </button>
+
+            <div class="status-message" id="statusMessage"></div>
+        </div>
+
+        <div class="preview-card" id="previewCard">
+            <img class="preview-thumbnail" id="previewThumbnail" src="" alt="thumbnail">
+            <div class="preview-info">
+                <div class="preview-title" id="previewTitle">عنوان ویدیو</div>
+                <a href="#" class="download-link" id="downloadLink" target="_blank" rel="noopener">
+                    <i class="fa-solid fa-download"></i> کلیک کنید تا دانلود شروع شود
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // استفاده از CORS Proxy برای دور زدن محدودیت مرورگر
+        const CORS_PROXY = 'https://corsproxy.io/?';
+        const API_URL = 'https://api.cobalt.tools/api/json';
+
+        function extractVideoInfo(url) {
+            let match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+            if (match) return { platform: 'YouTube', thumbnail: `https://img.youtube.com/vi/${match[1]}/maxresdefault.jpg`, title: 'ویدیو یوتیوب' };
+            
+            match = url.match(/instagram\.com\/(p|reel|tv)\/([a-zA-Z0-9_-]+)/);
+            if (match) return { platform: 'Instagram', thumbnail: '', title: 'پست اینستاگرام' };
+
+            return { platform: 'سایر', thumbnail: '', title: 'ویدیو' };
+        }
+
+        function isValidUrl(string) {
+            try { new URL(string); return true; } catch (_) { return false; }
+        }
+
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.className = `status-message show ${type}`;
+            statusEl.innerHTML = message;
+        }
+
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('urlInput').value = text;
+            } catch (err) {
+                showStatus('⚠️ اجازه دسترسی به کلیپ‌بورد داده نشده است.', 'error');
+            }
+        }
+
+        async function processDownload() {
+            const url = document.getElementById('urlInput').value.trim();
+            const quality = document.getElementById('qualitySelect').value;
+            const btn = document.getElementById('downloadBtn');
+            const previewCard = document.getElementById('previewCard');
+
+            previewCard.classList.remove('show');
+            document.getElementById('statusMessage').className = 'status-message';
+
+            if (!url || !isValidUrl(url)) {
+                showStatus('❌ لطفاً یک لینک معتبر وارد کنید.', 'error');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div><span>در حال پردازش...</span>';
+            showStatus('⏳ در حال ارتباط با سرور دانلود... لطفاً صبر کنید.', 'loading');
+
+            try {
+                // ساخت بدنه درخواست
+                const requestBody = { url: url };
+                if (quality === 'audio') {
+                    requestBody.isAudioOnly = true;
+                    requestBody.aFormat = 'mp3';
+                } else {
+                    requestBody.vQuality = quality;
+                }
+
+                // ارسال درخواست از طریق CORS Proxy
+                const response = await fetch(CORS_PROXY + encodeURIComponent(API_URL), {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`خطای سرور: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'stream' || data.status === 'redirect' || (data.status === 'picker' && data.picker?.length > 0)) {
+                    const downloadUrl = data.status === 'picker' ? data.picker[0].url : data.url;
+                    const videoInfo = extractVideoInfo(url);
+
+                    document.getElementById('previewThumbnail').src = videoInfo.thumbnail || 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NDAiIGhlaWdodD0iMzYwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWUyOTNiIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI0MCIgZmlsbD0iIzY0NzQ4YiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPvSZq+uIqTwvdGV4dD48L3N2Zz4=';
+                    document.getElementById('previewTitle').textContent = videoInfo.title + ' (' + videoInfo.platform + ')';
+                    document.getElementById('downloadLink').href = downloadUrl;
+                    
+                    previewCard.classList.add('show');
+                    showStatus('✅ لینک دانلود با موفقیت ساخته شد!', 'success');
+                } else {
+                    throw new Error(data.error?.code || 'این ویدیو قابل دانلود نیست (ممکن است خصوصی یا لایو باشد).');
+                }
+
+            } catch (error) {
+                console.error('Download Error:', error);
+                let errorMsg = error.message;
+                if (errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError')) {
+                    errorMsg = 'خطا در ارتباط با سرور واسطه. لطفاً فیلترشکن خود را خاموش/روشن کرده یا چند دقیقه دیگر تلاش کنید.';
+                }
+                showStatus(`❌ ${errorMsg}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-download"></i><span>دریافت لینک دانلود</span>';
+            }
+        }
+
+        document.getElementById('urlInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') processDownload();
+        });
+    </script>
+</body>
+</html>
